@@ -32,6 +32,30 @@ export function TokenCard({
   verified = false,
   accentColor = "bg-blue-500",
 }: TokenCardProps) {
+  // Helper to render badge icon from identifier
+  function renderBadgeIcon(icon: string) {
+    switch (icon) {
+      case "star":
+        return <span>⭐</span>;
+      case "fire":
+        return <span>🔥</span>;
+      case "trophy":
+        return <span>🏆</span>;
+      case "eye":
+        return <span>👁️</span>;
+      case "vip":
+        return <span>💎</span>;
+      case "trendingUp":
+        return <TrendingUp className="w-3 h-3 text-yellow-400" />;
+      case "zap":
+        return <span>⚡</span>;
+      case "flame":
+        return <span>🔥</span>;
+      default:
+        return null;
+    }
+  }
+
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 hover:border-gray-700 transition-colors cursor-pointer">
       <div className="flex items-start gap-3 mb-3">
@@ -76,29 +100,6 @@ export function TokenCard({
               className="flex items-center gap-1 text-xs text-gray-400"
             >
               {renderBadgeIcon(badge.icon)}
-              // Helper to render badge icon from identifier
-              function renderBadgeIcon(icon: string) {
-                switch (icon) {
-                  case "star":
-                    return <span>⭐</span>;
-                  case "fire":
-                    return <span>🔥</span>;
-                  case "trophy":
-                    return <span>🏆</span>;
-                  case "eye":
-                    return <span>👁️</span>;
-                  case "vip":
-                    return <span>💎</span>;
-                  case "trendingUp":
-                    return <TrendingUp className="w-3 h-3 text-yellow-400" />;
-                  case "zap":
-                    return <span>⚡</span>;
-                  case "flame":
-                    return <span>🔥</span>;
-                  default:
-                    return null;
-                }
-              }
               <span>{badge.value}</span>
             </div>
           ))}

@@ -154,7 +154,7 @@ export const EnhancedTokenCard = memo(function EnhancedTokenCard({
         </div>
 
         <span className="text-[10px] text-gray-500 font-medium font-mono">
-          {token.address?.slice(0, 4)}...pump
+          {token.ticker?.slice(0, 4) || "..."}...pump
         </span>
       </div>
 
@@ -179,7 +179,7 @@ export const EnhancedTokenCard = memo(function EnhancedTokenCard({
             "font-bold transition-colors duration-300",
             isConnected ? "text-[#22c55e] animate-pulse" : "text-gray-500"
           )}>
-            {token.creationTime || "1s"}
+            {token.timeframe || "1s"}
           </span>
           
           <div className="flex items-center gap-2.5">
@@ -224,13 +224,13 @@ export const EnhancedTokenCard = memo(function EnhancedTokenCard({
             <div className="flex items-center gap-1 text-[11px]">
             <span className="text-gray-500 font-bold text-[9px] uppercase">MC</span>
             <span className="text-[#38bdf8] font-bold">
-                ${(token.marketCap / 1000).toFixed(2)}K
+                {token.marketCap}
             </span>
             </div>
             <div className="flex items-center gap-1 text-[11px]">
             <span className="text-gray-500 font-bold text-[9px] uppercase">V</span>
             <span className="text-gray-200 font-bold">
-                ${Math.floor(token.volume)}
+                $0
             </span>
             </div>
         </div>
@@ -238,10 +238,10 @@ export const EnhancedTokenCard = memo(function EnhancedTokenCard({
         {/* Price & TX & Bar */}
         <div className="flex flex-col items-end w-full gap-1 mt-auto">
           <div className="flex items-center gap-2">
-            <PriceDisplay price={token.price} />
+            <PriceDisplay price={parseFloat(token.price) || 0} />
             <div className="flex items-baseline gap-0.5">
                <span className="text-[8px] text-gray-500 font-bold uppercase">TX</span>
-               <span className="text-[11px] text-gray-200">{token.txCount}</span>
+               <span className="text-[11px] text-gray-200">0</span>
             </div>
           </div>
           
