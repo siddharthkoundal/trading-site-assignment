@@ -4,13 +4,7 @@ import React, { memo, useState, useCallback, useMemo, useEffect, useRef } from "
 import Image from "next/image";
 import { AxiomTokenRow } from "../molecules/AxiomTokenRow";
 import { AxiomTokenRowSkeleton } from "../molecules/AxiomTokenRowSkeleton";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, Zap } from "lucide-react";
+import { ArrowUpDown, Zap, UserMinus, Coins, ShieldOff } from "lucide-react";
 import { Token } from "../../mocks/mockTokens";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setTokens, setSorting } from "@/store/tokenSlice";
@@ -195,146 +189,315 @@ export const AxiomTokenTable = memo(function AxiomTokenTable({
       : "Migrated";
 
   const [selectedPriority, setSelectedPriority] = useState<"P1" | "P2" | "P3">("P1");
+  const [hoveredPriority, setHoveredPriority] = useState<"P1" | "P2" | "P3" | null>(null);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close sort dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortDropdownOpen(false);
+      }
+    };
+
+    if (isSortDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSortDropdownOpen]);
 
   return (
     <div className="flex flex-col h-full w-full bg-black">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-black border-b border-[rgba(255,255,255,0.1)]">
-        <div className="flex items-center gap-3 min-h-12 px-3 py-2">
-          {/* Column Title */}
+      <div className="sticky top-0 z-30 bg-black border-b border-[rgba(255,255,255,0.1)] overflow-visible">
+        <div className="flex items-center justify-between gap-3 min-h-12 px-3 py-2 overflow-visible">
+          {/* Column Title - Left Aligned */}
           <span className="text-[16px] text-white font-medium whitespace-nowrap">
             {columnTitle}
           </span>
 
-          {/* Lightning bolt button with "0" */}
-          <button
-            type="button"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
-            aria-label="Filter value"
-          >
-            <Zap className="w-3.5 h-3.5 text-[#6b7280]" />
-            <span className="text-[14px] text-white font-medium">0</span>
-          </button>
-
-          {/* SOL Logo */}
-          <div className="w-5 h-5 rounded bg-gradient-to-br from-[#9945FF] via-[#14F195] to-[#9945FF] flex items-center justify-center overflow-hidden shrink-0 shadow-sm" role="img" aria-label="Solana">
-            <Image
-              src="/images/sol-fill.svg"
-              alt=""
-              width={20}
-              height={20}
-              className="w-full h-full object-contain"
-              unoptimized
-              loading="lazy"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const parent = target.parentElement;
-                if (parent) {
-                  parent.innerHTML = '<span class="text-[10px] text-white font-bold">S</span>';
-                }
-              }}
-            />
-          </div>
-
-          {/* P1/P2/P3 Button Group */}
-          <div className="flex items-center border border-[rgba(255,255,255,0.1)] rounded-lg overflow-hidden bg-[rgba(255,255,255,0.02)]">
+          {/* Right Aligned Controls */}
+          <div className="flex items-center gap-3 ml-auto">
+            {/* Lightning bolt button with "0" */}
             <button
               type="button"
-              onClick={() => setSelectedPriority("P1")}
-              className={cn(
-                "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
-                selectedPriority === "P1"
-                  ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
-                  : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
-              )}
-              aria-label="Filter priority 1"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
+              aria-label="Filter value"
             >
-              P1
+              <Zap className="w-3.5 h-3.5 text-[#6b7280]" />
+              <span className="text-[14px] text-white font-medium">0</span>
             </button>
-            <div className="w-px h-4 bg-[rgba(255,255,255,0.1)]" />
-            <button
-              type="button"
-              onClick={() => setSelectedPriority("P2")}
-              className={cn(
-                "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
-                selectedPriority === "P2"
-                  ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
-                  : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
-              )}
-              aria-label="Filter priority 2"
-            >
-              P2
-            </button>
-            <div className="w-px h-4 bg-[rgba(255,255,255,0.1)]" />
-            <button
-              type="button"
-              onClick={() => setSelectedPriority("P3")}
-              className={cn(
-                "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
-                selectedPriority === "P3"
-                  ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
-                  : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
-              )}
-              aria-label="Filter priority 3"
-            >
-              P3
-            </button>
-          </div>
 
-          {/* Sort Icon Button with Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            {/* SOL Logo */}
+            <div className="w-5 h-5 rounded bg-gradient-to-br from-[#9945FF] via-[#14F195] to-[#9945FF] flex items-center justify-center overflow-hidden shrink-0 shadow-sm" role="img" aria-label="Solana">
+              <Image
+                src="/images/sol-fill.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="w-full h-full object-contain"
+                unoptimized
+                loading="lazy"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<span class="text-[10px] text-white font-bold">S</span>';
+                  }
+                }}
+              />
+            </div>
+
+            {/* P1/P2/P3 Button Group with Individual Hover Dropdowns */}
+            <div className="relative flex items-center border border-[rgba(255,255,255,0.1)] rounded-lg bg-[rgba(255,255,255,0.02)] overflow-visible">
+              {/* P1 Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPriority("P1")}
+                  onMouseEnter={() => setHoveredPriority("P1")}
+                  onMouseLeave={() => setHoveredPriority(null)}
+                  className={cn(
+                    "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
+                    selectedPriority === "P1"
+                      ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
+                      : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
+                  )}
+                  aria-label="Filter priority 1"
+                >
+                  P1
+                </button>
+                {/* Dropdown for P1 */}
+                {hoveredPriority === "P1" && (
+                  <div 
+                    className="absolute left-0 top-full mt-1 w-48 opacity-100 visible transition-all duration-200 z-50 bg-[#0a0a0a] border border-[rgba(255,255,255,0.1)] rounded-md shadow-lg"
+                    onMouseEnter={() => setHoveredPriority("P1")}
+                    onMouseLeave={() => setHoveredPriority(null)}
+                  >
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <UserMinus className="w-4 h-4 text-white" />
+                        <span>20%</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <Zap className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-400">0.001</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <Coins className="w-4 h-4 text-white" />
+                        <span>0.01</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <ShieldOff className="w-4 h-4 text-white" />
+                        <span>Off</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="w-px h-4 bg-[rgba(255,255,255,0.1)]" />
+              {/* P2 Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPriority("P2")}
+                  onMouseEnter={() => setHoveredPriority("P2")}
+                  onMouseLeave={() => setHoveredPriority(null)}
+                  className={cn(
+                    "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
+                    selectedPriority === "P2"
+                      ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
+                      : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
+                  )}
+                  aria-label="Filter priority 2"
+                >
+                  P2
+                </button>
+                {/* Dropdown for P2 */}
+                {hoveredPriority === "P2" && (
+                  <div 
+                    className="absolute left-0 top-full mt-1 w-48 opacity-100 visible transition-all duration-200 z-50 bg-[#0a0a0a] border border-[rgba(255,255,255,0.1)] rounded-md shadow-lg"
+                    onMouseEnter={() => setHoveredPriority("P2")}
+                    onMouseLeave={() => setHoveredPriority(null)}
+                  >
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <UserMinus className="w-4 h-4 text-white" />
+                        <span>20%</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <Zap className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-400">0.001</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <Coins className="w-4 h-4 text-white" />
+                        <span>0.01</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <ShieldOff className="w-4 h-4 text-white" />
+                        <span>Off</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="w-px h-4 bg-[rgba(255,255,255,0.1)]" />
+              {/* P3 Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPriority("P3")}
+                  onMouseEnter={() => setHoveredPriority("P3")}
+                  onMouseLeave={() => setHoveredPriority(null)}
+                  className={cn(
+                    "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
+                    selectedPriority === "P3"
+                      ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
+                      : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
+                  )}
+                  aria-label="Filter priority 3"
+                >
+                  P3
+                </button>
+                {/* Dropdown for P3 */}
+                {hoveredPriority === "P3" && (
+                  <div 
+                    className="absolute left-0 top-full mt-1 w-48 opacity-100 visible transition-all duration-200 z-50 bg-[#0a0a0a] border border-[rgba(255,255,255,0.1)] rounded-md shadow-lg"
+                    onMouseEnter={() => setHoveredPriority("P3")}
+                    onMouseLeave={() => setHoveredPriority(null)}
+                  >
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <UserMinus className="w-4 h-4 text-white" />
+                        <span>20%</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <Zap className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-400">0.001</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <Coins className="w-4 h-4 text-white" />
+                        <span>0.01</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125 flex items-center gap-2"
+                      >
+                        <ShieldOff className="w-4 h-4 text-white" />
+                        <span>Off</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sort Icon Button with Click Dropdown */}
+            <div className="relative" ref={sortDropdownRef}>
               <button
                 type="button"
-                className="ml-auto flex items-center justify-center w-6 h-6 rounded-md hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
+                onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
                 aria-label="Sort tokens"
               >
                 <ArrowUpDown className="w-4 h-4 text-white" />
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-48 border-[rgba(255,255,255,0.1)] bg-[#0a0a0a]"
-            >
-              <DropdownMenuItem
-                onClick={() => handleSortChange("time")}
-                className={cn(
-                  "cursor-pointer text-white hover:bg-[rgba(255,255,255,0.05)]",
-                  sortBy === "time" && "bg-[rgba(59,130,246,0.2)]"
-                )}
-              >
-                Time
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleSortChange("marketCap")}
-                className={cn(
-                  "cursor-pointer text-white hover:bg-[rgba(255,255,255,0.05)]",
-                  sortBy === "marketCap" && "bg-[rgba(59,130,246,0.2)]"
-                )}
-              >
-                Market Cap
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleSortChange("price")}
-                className={cn(
-                  "cursor-pointer text-white hover:bg-[rgba(255,255,255,0.05)]",
-                  sortBy === "price" && "bg-[rgba(59,130,246,0.2)]"
-                )}
-              >
-                Price
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleSortChange("change")}
-                className={cn(
-                  "cursor-pointer text-white hover:bg-[rgba(255,255,255,0.05)]",
-                  sortBy === "change" && "bg-[rgba(59,130,246,0.2)]"
-                )}
-              >
-                Change
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              
+              {/* Sort Dropdown appears on click */}
+              {isSortDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 opacity-100 visible transition-all duration-200 z-50 bg-[#0a0a0a] border border-[rgba(255,255,255,0.1)] rounded-md shadow-lg">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        handleSortChange("time");
+                        setIsSortDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125",
+                        sortBy === "time" && "bg-[rgba(59,130,246,0.2)]"
+                      )}
+                    >
+                      Time
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSortChange("marketCap");
+                        setIsSortDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125",
+                        sortBy === "marketCap" && "bg-[rgba(59,130,246,0.2)]"
+                      )}
+                    >
+                      Market Cap
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSortChange("price");
+                        setIsSortDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125",
+                        sortBy === "price" && "bg-[rgba(59,130,246,0.2)]"
+                      )}
+                    >
+                      Price
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSortChange("change");
+                        setIsSortDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-4 py-2 text-left text-sm text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125",
+                        sortBy === "change" && "bg-[rgba(59,130,246,0.2)]"
+                      )}
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
