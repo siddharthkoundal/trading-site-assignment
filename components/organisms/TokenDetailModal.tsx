@@ -58,8 +58,9 @@ export const TokenDetailModal = memo(function TokenDetailModal({
       const { mockTokens } = await import("@/mocks/mockTokens");
       const foundToken = mockTokens.find((t) => t.id === tokenId);
       if (!foundToken) throw new Error("Token not found");
-      
+
       // Map to expected format
+      // Always provide a TokenStat[] for stats to avoid 'never' errors
       return {
         id: foundToken.id,
         name: foundToken.name,
@@ -69,13 +70,20 @@ export const TokenDetailModal = memo(function TokenDetailModal({
         price: foundToken.solAmount,
         timeframe: foundToken.time,
         verified: true,
-        stats: [],
+        stats: [
+          {
+            label: "24h Change",
+            value: "+2.5%",
+            isPositive: true,
+            change: "up" as const,
+          },
+        ],
         description: `Token ${foundToken.name} on ${foundToken.status}`,
         website: foundToken.website,
         twitter: foundToken.xLink,
         contract: foundToken.shortName,
-        holders: parseInt(foundToken.groupCount) || 0,
-        transactions24h: parseInt(foundToken.txCount) || 0,
+        holders: Number.parseInt(foundToken.groupCount) || 0,
+        transactions24h: Number.parseInt(foundToken.txCount) || 0,
       };
     },
     enabled: !!tokenId && open,
@@ -121,7 +129,7 @@ export const TokenDetailModal = memo(function TokenDetailModal({
                 </div>
                 <div className="flex items-center gap-2">
                   <PriceDisplay price={token.price} className="text-xl" />
-                  {token.stats[0] && (
+                  {token.stats && token.stats.length > 0 && token.stats[0] && (
                     <Badge
                       variant={
                         token.stats[0].isPositive ? "default" : "destructive"

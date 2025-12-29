@@ -26,7 +26,7 @@ export function useRealTimePrice(tokenId: string, column: TokenColumn) {
           dispatch(
             updateTokenPrice({
               tokenId: data.tokenId,
-              price: `$${data.price}`,
+              price: `$${data.marketCap}`,
               column,
             })
           );

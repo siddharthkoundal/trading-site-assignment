@@ -29,6 +29,7 @@ export type Token = {
   trophyCount: string;
   vipCount: string;
   eyeCount: string;
+  badges?: { icon: string; value: string }[];
   // Add more fields as needed for popovers, tooltips, etc.
 };
 
@@ -150,9 +151,7 @@ export const mockTokens: Token[] = [
     trophyCount: "0",
     vipCount: "0/6",
     eyeCount: "5",
-    badges: [
-      { icon: "star", value: "New" },
-    ],
+    badges: [{ icon: "star", value: "New" }],
   },
   {
     id: "5",
@@ -179,9 +178,7 @@ export const mockTokens: Token[] = [
     trophyCount: "1",
     vipCount: "1/3",
     eyeCount: "12",
-    badges: [
-      { icon: "fire", value: "Hot" },
-    ],
+    badges: [{ icon: "fire", value: "Hot" }],
   },
   {
     id: "6",
@@ -208,9 +205,7 @@ export const mockTokens: Token[] = [
     trophyCount: "3",
     vipCount: "3/5",
     eyeCount: "8",
-    badges: [
-      { icon: "trophy", value: "Winner" },
-    ],
+    badges: [{ icon: "trophy", value: "Winner" }],
   },
   // Add more tokens for variety, edge cases, and UI testing
 ];

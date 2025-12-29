@@ -6,10 +6,10 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover";
-import { Button } from "@/app/components/ui/button";
-import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { cn } from "@/app/components/ui/utils";
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/utils/cn";
 import type { Token, SortOption } from "@/types/token";
 
 interface TokenColumnProps {
