@@ -29,9 +29,16 @@ class MockWebSocketService {
    */
   connect(): Promise<void> {
     return new Promise((resolve) => {
+      if (this.isConnected) {
+        resolve();
+        return;
+      }
       setTimeout(() => {
         this.isConnected = true;
-        console.log("[WebSocket] Connected - HFT mode active");
+        // Reduced logging for production
+        if (process.env.NODE_ENV === "development") {
+          console.log("[WebSocket] Connected - HFT mode active");
+        }
         resolve();
       }, 100);
     });
@@ -45,7 +52,10 @@ class MockWebSocketService {
     this.intervals.forEach((interval) => clearInterval(interval));
     this.intervals.clear();
     this.baseValues.clear();
-    console.log("[WebSocket] Disconnected");
+    // Reduced logging for production
+    if (process.env.NODE_ENV === "development") {
+      console.log("[WebSocket] Disconnected");
+    }
   }
 
   /**

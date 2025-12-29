@@ -14,13 +14,17 @@ const geistSans = Geist({
   subsets: ["latin"],
   display: "swap",
   preload: true,
+  fallback: ["system-ui", "arial"],
+  adjustFontFallback: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
-  preload: true,
+  preload: false, // Don't preload mono font to reduce render blocking
+  fallback: ["monospace"],
+  adjustFontFallback: true,
 });
 
 export default function RootLayout({
@@ -36,8 +40,12 @@ export default function RootLayout({
         <meta name="keywords" content="crypto, trading, tokens, defi, solana, pump.fun" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <link rel="preconnect" href="https://api.dicebear.com" />
+        {/* Resource hints for performance */}
+        <link rel="preconnect" href="https://api.dicebear.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.dicebear.com" />
+        <link rel="preconnect" href="https://axiom.trade" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://axiom.trade" />
+        <link rel="dns-prefetch" href="https://axiomtrading.sfo3.cdn.digitaloceanspaces.com" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

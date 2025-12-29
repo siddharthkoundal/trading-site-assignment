@@ -20,12 +20,12 @@ export function useTokenWebSocket(
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
+    let connectionCheckInterval: NodeJS.Timeout | null = null;
 
-    const setupWebSocket = async () => {
+    const setupWebSocket = () => {
       try {
-        // Connect to WebSocket
-        await mockWebSocketService.connect();
-        setIsConnected(true);
+        // Check connection status (connection is managed by WebSocketProvider)
+        setIsConnected(mockWebSocketService.getConnectionStatus());
 
         // Subscribe to comprehensive token updates
         unsubscribe = mockWebSocketService.subscribe(tokenId, (data) => {
@@ -59,8 +59,13 @@ export function useTokenWebSocket(
             })
           );
         });
+
+        // Periodically check connection status (in case it connects later)
+        connectionCheckInterval = setInterval(() => {
+          setIsConnected(mockWebSocketService.getConnectionStatus());
+        }, 1000);
       } catch (error) {
-        console.error("[useTokenWebSocket] Connection error:", error);
+        console.error("[useTokenWebSocket] Subscription error:", error);
         setIsConnected(false);
       }
     };
@@ -71,6 +76,9 @@ export function useTokenWebSocket(
     return () => {
       if (unsubscribe) {
         unsubscribe();
+      }
+      if (connectionCheckInterval) {
+        clearInterval(connectionCheckInterval);
       }
     };
   }, [tokenId, column, dispatch]);

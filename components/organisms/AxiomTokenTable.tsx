@@ -214,32 +214,32 @@ export const AxiomTokenTable = memo(function AxiomTokenTable({
     <div className="flex flex-col h-full w-full bg-black">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-black border-b border-[rgba(255,255,255,0.1)] overflow-visible">
-        <div className="flex items-center justify-between gap-3 min-h-12 px-3 py-2 overflow-visible">
-          {/* Column Title - Left Aligned */}
-          <span className="text-[16px] text-white font-medium whitespace-nowrap">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 min-h-12 px-2 sm:px-3 py-2 overflow-visible">
+          {/* Column Title - Left Aligned - Hidden on mobile since tabs show it */}
+          <span className="hidden lg:block text-[16px] text-white font-medium whitespace-nowrap">
             {columnTitle}
           </span>
 
           {/* Right Aligned Controls */}
-          <div className="flex items-center gap-3 ml-auto">
-            {/* Lightning bolt button with "0" */}
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 ml-auto">
+            {/* Lightning bolt button with "0" - Smaller on mobile */}
             <button
               type="button"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
+              className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 lg:px-2.5 py-1 sm:py-1.5 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
               aria-label="Filter value"
             >
-              <Zap className="w-3.5 h-3.5 text-[#6b7280]" />
-              <span className="text-[14px] text-white font-medium">0</span>
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#6b7280]" />
+              <span className="text-[12px] sm:text-[14px] text-white font-medium">0</span>
             </button>
 
-            {/* SOL Logo */}
-            <div className="w-5 h-5 rounded bg-gradient-to-br from-[#9945FF] via-[#14F195] to-[#9945FF] flex items-center justify-center overflow-hidden shrink-0 shadow-sm" role="img" aria-label="Solana">
+            {/* SOL Logo - Smaller on mobile */}
+            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded bg-gradient-to-br from-[#9945FF] via-[#14F195] to-[#9945FF] flex items-center justify-center overflow-hidden shrink-0 shadow-sm" role="img" aria-label="Solana">
               <Image
                 src="/images/sol-fill.svg"
                 alt=""
-                width={20}
-                height={20}
-                className="w-full h-full object-contain"
+                width={16}
+                height={16}
+                className="w-full h-full object-contain sm:w-5 sm:h-5"
                 unoptimized
                 loading="lazy"
                 onError={(e) => {
@@ -247,13 +247,13 @@ export const AxiomTokenTable = memo(function AxiomTokenTable({
                   target.style.display = 'none';
                   const parent = target.parentElement;
                   if (parent) {
-                    parent.innerHTML = '<span class="text-[10px] text-white font-bold">S</span>';
+                    parent.innerHTML = '<span class="text-[8px] sm:text-[10px] text-white font-bold">S</span>';
                   }
                 }}
               />
             </div>
 
-            {/* P1/P2/P3 Button Group with Individual Hover Dropdowns */}
+            {/* P1/P2/P3 Button Group - Smaller on mobile */}
             <div className="relative flex items-center border border-[rgba(255,255,255,0.1)] rounded-lg bg-[rgba(255,255,255,0.02)] overflow-visible">
               {/* P1 Button */}
               <div className="relative">
@@ -263,7 +263,7 @@ export const AxiomTokenTable = memo(function AxiomTokenTable({
                   onMouseEnter={() => setHoveredPriority("P1")}
                   onMouseLeave={() => setHoveredPriority(null)}
                   className={cn(
-                    "px-2.5 py-1 text-[12px] font-medium transition-colors duration-125",
+                    "px-1.5 sm:px-2 lg:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] lg:text-[12px] font-medium transition-colors duration-125",
                     selectedPriority === "P1"
                       ? "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]"
                       : "bg-transparent text-white hover:bg-[rgba(255,255,255,0.05)]"
@@ -435,10 +435,10 @@ export const AxiomTokenTable = memo(function AxiomTokenTable({
               <button
                 type="button"
                 onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                className="flex items-center justify-center w-6 h-6 rounded-md hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
+                className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-md hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-125"
                 aria-label="Sort tokens"
               >
-                <ArrowUpDown className="w-4 h-4 text-white" />
+                <ArrowUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </button>
               
               {/* Sort Dropdown appears on click */}
@@ -521,12 +521,13 @@ export const AxiomTokenTable = memo(function AxiomTokenTable({
             </div>
           ) : (
             // Token rows - always sorted based on current sortBy
-            filteredAndSortedTokens.map((token) => (
+            filteredAndSortedTokens.map((token, index) => (
               <AxiomTokenRow
                 key={token.id}
                 token={token}
                 onTokenClick={onTokenClick}
                 column={column}
+                isPriority={index < 3} // Optimize LCP - first 3 images load eagerly
               />
             ))
           )}

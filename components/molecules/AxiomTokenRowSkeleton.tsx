@@ -13,7 +13,7 @@ export const AxiomTokenRowSkeleton = memo(function AxiomTokenRowSkeleton() {
     <div
       className={cn(
         "relative flex items-start w-full border-b border-[rgba(255,255,255,0.05)]",
-        "min-h-[116px] h-[116px]"
+        "min-h-[100px] sm:min-h-[116px] h-[100px] sm:h-[116px]"
       )}
     >
       {/* Left Section: Avatar */}
