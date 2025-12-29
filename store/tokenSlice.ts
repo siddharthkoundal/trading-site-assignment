@@ -57,6 +57,39 @@ const tokenSlice = createSlice({
       }
     },
 
+    updateTokenData: (
+      state,
+      action: PayloadAction<{
+        tokenId: string;
+        column: TokenColumn;
+        marketCap?: string;
+        volume?: string;
+        fee?: string;
+        txCount?: string;
+        change?: number;
+      }>
+    ) => {
+      const token = state[action.payload.column].tokens.find(
+        (t) => t.id === action.payload.tokenId
+      );
+      if (token) {
+        if (action.payload.marketCap !== undefined) {
+          token.marketCap = action.payload.marketCap;
+        }
+        if (action.payload.volume !== undefined) {
+          // Store additional fields on token object
+          (token as any).volume = action.payload.volume;
+        }
+        if (action.payload.fee !== undefined) {
+          (token as any).fee = action.payload.fee;
+        }
+        if (action.payload.txCount !== undefined) {
+          (token as any).txCount = action.payload.txCount;
+        }
+        token.lastUpdate = Date.now();
+      }
+    },
+
     setSorting: (
       state,
       action: PayloadAction<{ column: TokenColumn; sortBy: SortOption }>
@@ -91,6 +124,7 @@ const tokenSlice = createSlice({
 export const {
   setTokens,
   updateTokenPrice,
+  updateTokenData,
   setSorting,
   setFilters,
   setLoading,

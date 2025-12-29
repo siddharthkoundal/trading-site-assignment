@@ -1,16 +1,24 @@
 "use client";
 
-import { Provider } from "react-redux";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { store } from "../store";
-import { queryClient } from "../utils/queryClient";
+import { useEffect } from "react";
+import { mockWebSocketService } from "@/services/mockWebSocket";
 
-export default function Providers({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </Provider>
-  );
+/**
+ * Global WebSocket connection manager
+ * Establishes connection on app mount for HFT dashboard
+ */
+export function WebSocketProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Establish WebSocket connection on mount
+    mockWebSocketService.connect().catch((error) => {
+      console.error("[WebSocketProvider] Failed to connect:", error);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      mockWebSocketService.disconnect();
+    };
+  }, []);
+
+  return <>{children}</>;
 }

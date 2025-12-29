@@ -1,0 +1,86 @@
+/**
+ * Axiom Trade Pixel-Perfect Theme
+ * Exact color values and spacing matching axiom.trade/pulse
+ */
+
+:root {
+  /* Background Colors */
+  --axiom-bg-primary: #000000;
+  --axiom-bg-secondary: #0a0a0a;
+  --axiom-bg-tertiary: #111111;
+  --axiom-bg-hover: rgba(255, 255, 255, 0.03);
+  
+  /* Text Colors */
+  --axiom-text-primary: #ffffff;
+  --axiom-text-secondary: #9ca3af;
+  --axiom-text-tertiary: #6b7280;
+  
+  /* Accent Colors */
+  --axiom-blue: #52c5ff; /* rgb(82, 197, 255) - Market Cap color */
+  --axiom-green: #22c55e; /* rgb(34, 197, 94) - Positive changes */
+  --axiom-red: #ef4444; /* rgb(239, 68, 68) - Negative changes */
+  --axiom-pump: #ff6b35; /* Pump.fun accent */
+  
+  /* Border Colors */
+  --axiom-border-primary: rgba(255, 255, 255, 0.1);
+  --axiom-border-secondary: rgba(255, 255, 255, 0.05);
+  
+  /* Spacing - Exact pixel values */
+  --axiom-spacing-xs: 2px;
+  --axiom-spacing-sm: 4px;
+  --axiom-spacing-md: 8px;
+  --axiom-spacing-lg: 12px;
+  --axiom-spacing-xl: 16px;
+  --axiom-spacing-2xl: 20px;
+  
+  /* Typography */
+  --axiom-font-xs: 10px;
+  --axiom-font-sm: 11px;
+  --axiom-font-base: 12px;
+  --axiom-font-md: 14px;
+  --axiom-font-lg: 16px;
+  
+  /* Component Sizes */
+  --axiom-avatar-size: 68px;
+  --axiom-avatar-border: 74px;
+  --axiom-badge-size: 16px;
+  --axiom-row-height: 116px; /* Exact row height from design */
+  
+  /* Shadows */
+  --axiom-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --axiom-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Utility Classes */
+.axiom-bg-primary { background-color: var(--axiom-bg-primary); }
+.axiom-bg-secondary { background-color: var(--axiom-bg-secondary); }
+.axiom-bg-tertiary { background-color: var(--axiom-bg-tertiary); }
+.axiom-text-primary { color: var(--axiom-text-primary); }
+.axiom-text-secondary { color: var(--axiom-text-secondary); }
+.axiom-text-tertiary { color: var(--axiom-text-tertiary); }
+.axiom-text-blue { color: var(--axiom-blue); }
+.axiom-text-green { color: var(--axiom-green); }
+.axiom-text-red { color: var(--axiom-red); }
+.axiom-border-primary { border-color: var(--axiom-border-primary); }
+.axiom-border-secondary { border-color: var(--axiom-border-secondary); }
+
+/* Smooth transitions for price updates */
+.price-flash-up {
+  color: var(--axiom-green) !important;
+  transition: color 200ms ease-out;
+}
+
+.price-flash-down {
+  color: var(--axiom-red) !important;
+  transition: color 200ms ease-out;
+}
+
+/* Hover effects */
+.axiom-row-hover {
+  transition: background-color 75ms ease-linear;
+}
+
+.axiom-row-hover:hover {
+  background-color: var(--axiom-bg-hover);
+}
+

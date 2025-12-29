@@ -7,15 +7,20 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { store } from "@/store";
 import { queryClient } from "@/utils/queryClient";
+import { WebSocketProvider } from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 export default function RootLayout({
@@ -25,6 +30,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <title>Axiom Trade - Token Discovery Dashboard</title>
+        <meta name="description" content="Real-time token discovery and trading dashboard with live price updates, market analysis, and HFT-style data visualization." />
+        <meta name="keywords" content="crypto, trading, tokens, defi, solana, pump.fun" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="preconnect" href="https://api.dicebear.com" />
+        <link rel="dns-prefetch" href="https://axiom.trade" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -42,7 +56,9 @@ export default function RootLayout({
         >
           <Provider store={store}>
             <QueryClientProvider client={queryClient}>
-              {children}
+              <WebSocketProvider>
+                {children}
+              </WebSocketProvider>
             </QueryClientProvider>
           </Provider>
         </ErrorBoundary>

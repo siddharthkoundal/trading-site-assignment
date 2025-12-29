@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { LoadingSpinner } from "../atoms/LoadingSpinner";
 import { PriceDisplay } from "../atoms/PriceDisplay";
 import { StatBadge } from "../atoms/StatBadge";
-import { fetchTokenDetails } from "@/services/tokenApi";
+// import { fetchTokenDetails } from "@/services/tokenApi"; // Using mock data directly
 import { toast } from "sonner";
 
 /**
@@ -49,9 +49,35 @@ export const TokenDetailModal = memo(function TokenDetailModal({
     onClose();
   };
 
+  // For now, use mock data directly instead of API call
+  // In production, this would fetch from API
   const { data: token, isLoading } = useQuery({
     queryKey: ["tokenDetails", tokenId],
-    queryFn: () => fetchTokenDetails(tokenId!),
+    queryFn: async () => {
+      // Find token in mock data
+      const { mockTokens } = await import("@/mocks/mockTokens");
+      const foundToken = mockTokens.find((t) => t.id === tokenId);
+      if (!foundToken) throw new Error("Token not found");
+      
+      // Map to expected format
+      return {
+        id: foundToken.id,
+        name: foundToken.name,
+        ticker: foundToken.shortName,
+        image: foundToken.image,
+        marketCap: foundToken.marketCap,
+        price: foundToken.solAmount,
+        timeframe: foundToken.time,
+        verified: true,
+        stats: [],
+        description: `Token ${foundToken.name} on ${foundToken.status}`,
+        website: foundToken.website,
+        twitter: foundToken.xLink,
+        contract: foundToken.shortName,
+        holders: parseInt(foundToken.groupCount) || 0,
+        transactions24h: parseInt(foundToken.txCount) || 0,
+      };
+    },
     enabled: !!tokenId && open,
   });
 

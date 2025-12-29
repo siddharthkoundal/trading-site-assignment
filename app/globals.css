@@ -1,5 +1,7 @@
+/* Critical CSS - inline for faster rendering */
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../styles/axiom-theme.css";
 
 @theme inline {
   --color-background: var(--background);

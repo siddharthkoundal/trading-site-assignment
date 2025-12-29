@@ -11,8 +11,9 @@ const MOCK_DELAY = 800;
 
 /**
  * Generate mock tokens for a specific column
+ * Exported for use in components
  */
-function generateMockTokens(column: TokenColumn, count: number): Token[] {
+export function generateMockTokens(column: TokenColumn, count: number): Token[] {
   const tokens: Token[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -26,7 +27,7 @@ function generateMockTokens(column: TokenColumn, count: number): Token[] {
 
     tokens.push({
       id,
-      image: `https://source.unsplash.com/random/100x100?crypto,coin&sig=${i}`,
+      image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
       name: `${
         column === "newPairs"
           ? "New"
