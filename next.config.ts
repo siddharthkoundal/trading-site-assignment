@@ -33,12 +33,8 @@ const nextConfig: NextConfig = {
   },
   // Compress output
   compress: true,
-  // Optimize production builds
-  swcMinify: true,
   // Enable React strict mode
   reactStrictMode: true,
-  // Optimize fonts
-  optimizeFonts: true,
 };
 
 export default nextConfig;
