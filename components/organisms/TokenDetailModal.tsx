@@ -1,9 +1,8 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { memo, useState, useMemo } from "react";
+import Image from "next/image";
 import {
-  X,
   ExternalLink,
   Copy,
   TrendingUp,
@@ -23,8 +22,10 @@ import { Separator } from "@/components/ui/separator";
 import { LoadingSpinner } from "../atoms/LoadingSpinner";
 import { PriceDisplay } from "../atoms/PriceDisplay";
 import { StatBadge } from "../atoms/StatBadge";
-// import { fetchTokenDetails } from "@/services/tokenApi"; // Using mock data directly
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/hooks";
+import type { Token as ReduxToken } from "@/types/token";
+import type { Token as AxiomToken } from "@/mocks/mockTokens";
 
 /**
  * Token detail modal with comprehensive information (Organism)
@@ -32,12 +33,14 @@ import { toast } from "sonner";
 
 interface TokenDetailModalProps {
   tokenId: string | null;
+  token?: ReduxToken | AxiomToken | null; // Optional token object to use directly (supports both types)
   open: boolean;
   onClose: () => void;
 }
 
 export const TokenDetailModal = memo(function TokenDetailModal({
   tokenId,
+  token: tokenProp,
   open,
   onClose,
 }: TokenDetailModalProps) {
@@ -49,26 +52,38 @@ export const TokenDetailModal = memo(function TokenDetailModal({
     onClose();
   };
 
-  // For now, use mock data directly instead of API call
-  // In production, this would fetch from API
-  const { data: token, isLoading } = useQuery({
-    queryKey: ["tokenDetails", tokenId],
-    queryFn: async () => {
-      // Find token in mock data
-      const { mockTokens } = await import("@/mocks/mockTokens");
-      const foundToken = mockTokens.find((t) => t.id === tokenId);
-      if (!foundToken) throw new Error("Token not found");
+  // Get tokens from all columns in Redux to find the token
+  const allTokens = useAppSelector((state) => [
+    ...state.tokens.newPairs.tokens,
+    ...state.tokens.finalStretch.tokens,
+    ...state.tokens.migrated.tokens,
+  ]);
 
-      // Map to expected format
-      // Always provide a TokenStat[] for stats to avoid 'never' errors
+  // Find token from Redux state or use provided token prop
+  const foundToken = useMemo(() => {
+    if (tokenProp) return tokenProp;
+    if (!tokenId) return null;
+    return allTokens.find((t) => t.id === tokenId) || null;
+  }, [tokenId, tokenProp, allTokens]);
+
+  // Map token to modal format (handles both ReduxToken and AxiomToken types)
+  const token = useMemo(() => {
+    if (!foundToken) return null;
+
+    // Check if it's an AxiomToken (has 'shortName' property) or ReduxToken (has 'ticker' property)
+    const isAxiomToken = 'shortName' in foundToken || 'solAmount' in foundToken;
+
+    if (isAxiomToken) {
+      // Handle AxiomToken type (from mocks/mockTokens.ts)
+      const axiomToken = foundToken as AxiomToken;
       return {
-        id: foundToken.id,
-        name: foundToken.name,
-        ticker: foundToken.shortName,
-        image: foundToken.image,
-        marketCap: foundToken.marketCap,
-        price: foundToken.solAmount,
-        timeframe: foundToken.time,
+        id: axiomToken.id,
+        name: axiomToken.fullName || axiomToken.name,
+        ticker: axiomToken.shortName,
+        image: axiomToken.image,
+        marketCap: axiomToken.marketCap,
+        price: axiomToken.solAmount,
+        timeframe: axiomToken.time,
         verified: true,
         stats: [
           {
@@ -78,16 +93,55 @@ export const TokenDetailModal = memo(function TokenDetailModal({
             change: "up" as const,
           },
         ],
-        description: `Token ${foundToken.name} on ${foundToken.status}`,
-        website: foundToken.website,
-        twitter: foundToken.xLink,
-        contract: foundToken.shortName,
-        holders: Number.parseInt(foundToken.groupCount) || 0,
-        transactions24h: Number.parseInt(foundToken.txCount) || 0,
+        description: `Token ${axiomToken.name} on ${axiomToken.status}`,
+        website: axiomToken.website || `https://example.com/${axiomToken.name}`,
+        twitter: axiomToken.xLink || `https://twitter.com/${axiomToken.name}`,
+        contract: axiomToken.shortName,
+        holders: Number.parseInt(axiomToken.groupCount) || 0,
+        transactions24h: Number.parseInt(axiomToken.txCount) || 0,
       };
-    },
-    enabled: !!tokenId && open,
-  });
+    } else {
+      // Handle ReduxToken type (from types/token.ts)
+      const reduxToken = foundToken as ReduxToken;
+      const stats = reduxToken.stats && reduxToken.stats.length > 0
+        ? reduxToken.stats
+        : [
+            {
+              label: "24h Change",
+              value: "+2.5%",
+              isPositive: true,
+              change: "up" as const,
+            },
+          ];
+
+      const contract = reduxToken.ticker || reduxToken.id.slice(0, 8) + "...";
+
+      // Generate stable pseudo-random values based on token ID
+      const hash = reduxToken.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const holders = (hash % 9000) + 1000; // Stable value between 1000-10000
+      const transactions24h = ((hash * 7) % 45000) + 5000; // Stable value between 5000-50000
+      
+      return {
+        id: reduxToken.id,
+        name: reduxToken.name,
+        ticker: reduxToken.ticker,
+        image: reduxToken.image,
+        marketCap: reduxToken.marketCap,
+        price: reduxToken.price,
+        timeframe: reduxToken.timeframe,
+        verified: reduxToken.verified ?? true,
+        stats,
+        description: `${reduxToken.name} is a token in the marketplace with ticker ${reduxToken.ticker}.`,
+        website: `https://example.com/${reduxToken.ticker.toLowerCase()}`,
+        twitter: `https://twitter.com/${reduxToken.ticker.toLowerCase()}`,
+        contract,
+        holders,
+        transactions24h,
+      };
+    }
+  }, [foundToken]);
+
+  const isLoading = !token && !!tokenId && open;
 
   const handleCopyContract = () => {
     if (token?.contract) {
@@ -117,11 +171,16 @@ export const TokenDetailModal = memo(function TokenDetailModal({
           <div className="space-y-6">
             {/* Header */}
             <div className="flex items-start gap-4">
-              <img
-                src={token.image}
-                alt={token.name}
-                className="size-20 rounded-full ring-4 ring-gray-800"
-              />
+              <div className="relative size-20 shrink-0">
+                <Image
+                  src={token.image}
+                  alt={token.name}
+                  className="size-20 rounded-full ring-4 ring-gray-800 object-cover"
+                  width={80}
+                  height={80}
+                  loading="lazy"
+                />
+              </div>
               <div className="flex-1 space-y-2">
                 <div>
                   <h2 className="text-2xl font-semibold">{token.name}</h2>
@@ -230,7 +289,7 @@ export const TokenDetailModal = memo(function TokenDetailModal({
                     size="sm"
                     variant="ghost"
                     onClick={handleCopyContract}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                   >
                     <AnimatePresence mode="wait">
                       {copied ? (
@@ -261,7 +320,7 @@ export const TokenDetailModal = memo(function TokenDetailModal({
             {/* Links */}
             <div className="flex gap-3">
               {token.website && (
-                <Button variant="outline" asChild className="flex-1">
+                <Button variant="outline" asChild className="flex-1 text-black">
                   <a
                     href={token.website}
                     target="_blank"
@@ -273,7 +332,7 @@ export const TokenDetailModal = memo(function TokenDetailModal({
                 </Button>
               )}
               {token.twitter && (
-                <Button variant="outline" asChild className="flex-1">
+                <Button variant="outline" asChild className="flex-1 text-black">
                   <a
                     href={token.twitter}
                     target="_blank"

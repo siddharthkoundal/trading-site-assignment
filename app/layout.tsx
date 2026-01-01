@@ -40,12 +40,13 @@ export default function RootLayout({
         <meta name="keywords" content="crypto, trading, tokens, defi, solana, pump.fun" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        {/* Resource hints for performance */}
+        {/* Resource hints for performance - preconnect to critical domains */}
         <link rel="preconnect" href="https://api.dicebear.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://api.dicebear.com" />
         <link rel="preconnect" href="https://axiom.trade" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://axiomtrading.sfo3.cdn.digitaloceanspaces.com" crossOrigin="anonymous" />
+        {/* DNS prefetch for non-critical resources */}
+        <link rel="dns-prefetch" href="https://api.dicebear.com" />
         <link rel="dns-prefetch" href="https://axiom.trade" />
-        <link rel="dns-prefetch" href="https://axiomtrading.sfo3.cdn.digitaloceanspaces.com" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

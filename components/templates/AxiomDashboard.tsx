@@ -1,16 +1,26 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { ErrorBoundary } from "react-error-boundary";
 import { AxiomTokenTable } from "../organisms/AxiomTokenTable";
-import { TokenDetailModal } from "../organisms/TokenDetailModal";
-import { WebSocketStatus } from "../organisms/WebSocketStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { Token } from "../../mocks/mockTokens";
 import type { TokenColumn } from "@/types/token";
+
+// Lazy load heavy components to reduce initial bundle size
+const TokenDetailModal = dynamic(
+  () => import("../organisms/TokenDetailModal").then((mod) => ({ default: mod.TokenDetailModal })),
+  { ssr: false }
+);
+
+const WebSocketStatus = dynamic(
+  () => import("../organisms/WebSocketStatus").then((mod) => ({ default: mod.WebSocketStatus })),
+  { ssr: false }
+);
 
 /**
  * Main Axiom Trade Dashboard
@@ -172,17 +182,22 @@ export const AxiomDashboard = memo(function AxiomDashboard() {
           </ErrorBoundary>
         </main>
 
-        {/* Token Detail Modal */}
-        {selectedToken && (
-          <TokenDetailModal
-            tokenId={selectedToken.id}
-            open={modalOpen}
-            onClose={handleModalClose}
-          />
+        {/* Token Detail Modal - Lazy loaded */}
+        {modalOpen && (
+          <Suspense fallback={null}>
+            <TokenDetailModal
+              tokenId={selectedToken?.id || null}
+              token={selectedToken}
+              open={modalOpen}
+              onClose={handleModalClose}
+            />
+          </Suspense>
         )}
 
-        {/* WebSocket Status Indicator */}
-        <WebSocketStatus />
+        {/* WebSocket Status Indicator - Lazy loaded */}
+        <Suspense fallback={null}>
+          <WebSocketStatus />
+        </Suspense>
       </div>
     </ErrorBoundary>
   );

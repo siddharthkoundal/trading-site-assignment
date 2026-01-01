@@ -35,6 +35,18 @@ const nextConfig: NextConfig = {
   compress: true,
   // Enable React strict mode
   reactStrictMode: true,
+  // Production optimizations
+  // swcMinify: true,
+  // Optimize font loading
+  // optimizeFonts: true,
+  // Enable production source maps (optional, can disable for smaller bundle)
+  productionBrowserSourceMaps: false,
+  // Compiler optimizations - remove console.log in production
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? {
+      exclude: ["error", "warn"],
+    } : false,
+  },
 };
 
 export default nextConfig;

@@ -1,6 +1,7 @@
 import type { Token, TokenColumn } from "@/types/token";
 import { TrendingUp, Zap, Flame } from "lucide-react";
 import React from "react";
+import { getTokenPlaceholder } from "@/utils/imagePlaceholder";
 
 /**
  * Mock API service for fetching token data
@@ -27,7 +28,7 @@ export function generateMockTokens(column: TokenColumn, count: number): Token[] 
 
     tokens.push({
       id,
-      image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
+      image: getTokenPlaceholder(id), // Use instant-loading placeholder instead of external API
       name: `${
         column === "newPairs"
           ? "New"
